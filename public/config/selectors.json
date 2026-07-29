@@ -1,0 +1,52 @@
+{
+  "_comment": "All CSS selectors, text patterns, and ATS domain mappings live here (never inline them in detection logic). When a detector stops firing, this file is the first place to check. Selector arrays are tried in order; first match wins. NOTE: content-script domain matches also live in manifest.json host_permissions/content_scripts and must be kept in sync manually.",
+  "linkedin": {
+    "jobTitle": [
+      ".job-details-jobs-unified-top-card__job-title h1",
+      ".job-details-jobs-unified-top-card__job-title",
+      ".jobs-unified-top-card__job-title",
+      "h1.t-24",
+      "h1"
+    ],
+    "company": [
+      ".job-details-jobs-unified-top-card__company-name a",
+      ".job-details-jobs-unified-top-card__company-name",
+      ".jobs-unified-top-card__company-name a",
+      ".jobs-unified-top-card__company-name"
+    ],
+    "easyApplyModal": [".artdeco-modal", "[role='dialog']"],
+    "submittedTextPatterns": [
+      "application sent",
+      "application submitted",
+      "your application was sent",
+      "applied to"
+    ],
+    "jobDescription": [
+      ".jobs-description__content",
+      "#job-details",
+      ".jobs-box__html-content",
+      ".jobs-description-content__text"
+    ]
+  },
+  "ats": {
+    "confirmationUrlPatterns": ["confirmation", "thank-you", "thank_you", "thankyou", "success", "applied"],
+    "confirmationTextPatterns": [
+      "application submitted",
+      "application has been submitted",
+      "we received your application",
+      "we have received your application",
+      "thank you for applying",
+      "thanks for applying",
+      "your application has been received",
+      "successfully submitted"
+    ],
+    "jobTitle": ["h1", ".app-title", ".posting-headline h2", ".job-title"],
+    "companyMeta": ["meta[property='og:site_name']", "meta[name='application-name']"],
+    "jobDescription": ["#content", ".posting", ".job__description", "[data-automation-id='jobPostingDescription']", "main"]
+  },
+  "sourceDomains": {
+    "greenhouse": ["greenhouse.io"],
+    "lever": ["lever.co"],
+    "workday": ["myworkdayjobs.com", "workday.com"]
+  }
+}

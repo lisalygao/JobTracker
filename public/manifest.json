@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "JobTracker",
+  "version": "0.1.0",
+  "description": "Detects job applications on LinkedIn and ATS sites, tracks them locally, exports CSV, and suggests AI resume tailoring.",
+  "permissions": ["storage", "sidePanel"],
+  "host_permissions": [
+    "*://*.linkedin.com/*",
+    "*://boards.greenhouse.io/*",
+    "*://job-boards.greenhouse.io/*",
+    "*://jobs.lever.co/*",
+    "*://*.myworkdayjobs.com/*",
+    "*://*.icims.com/*",
+    "*://jobs.smartrecruiters.com/*",
+    "*://jobs.ashbyhq.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.linkedin.com/*"],
+      "js": ["content/linkedin.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://boards.greenhouse.io/*",
+        "*://job-boards.greenhouse.io/*",
+        "*://jobs.lever.co/*",
+        "*://*.myworkdayjobs.com/*",
+        "*://*.icims.com/*",
+        "*://jobs.smartrecruiters.com/*",
+        "*://jobs.ashbyhq.com/*"
+      ],
+      "js": ["content/ats.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
+  },
+  "action": {
+    "default_title": "Open JobTracker"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["config/selectors.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
