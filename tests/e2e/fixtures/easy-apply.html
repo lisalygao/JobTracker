@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Senior Frontend Engineer | Acme | LinkedIn (fixture)</title>
+  </head>
+  <body>
+    <div class="job-details-jobs-unified-top-card__company-name"><a href="#">Acme</a></div>
+    <h1>Senior Frontend Engineer</h1>
+    <div class="jobs-description__content">
+      We are looking for a Senior Frontend Engineer to build delightful UIs with
+      TypeScript and modern tooling. You will own features end to end.
+    </div>
+    <button id="apply">Easy Apply</button>
+    <script>
+      // Mimics LinkedIn: clicking apply eventually shows the submitted modal.
+      document.getElementById('apply').addEventListener('click', () => {
+        setTimeout(() => {
+          const modal = document.createElement('div');
+          modal.className = 'artdeco-modal';
+          modal.innerHTML = '<h2>Your application was sent to Acme!</h2>';
+          document.body.append(modal);
+        }, 100);
+      });
+    </script>
+  </body>
+</html>
