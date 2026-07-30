@@ -25,11 +25,26 @@ async function write(key: string, value: unknown): Promise<void> {
   await chrome.storage.local.set({ [key]: value });
 }
 
+// Mutations are read-modify-write over whole arrays; two messages arriving
+// close together (toast save + panel update) could otherwise interleave and
+// drop a write. Serialize all mutations through one promise chain.
+let queue: Promise<unknown> = Promise.resolve();
+
+function withLock<T>(fn: () => Promise<T>): Promise<T> {
+  const run = queue.then(fn, fn);
+  queue = run.catch(() => {});
+  return run;
+}
+
 export async function listApplications(): Promise<Application[]> {
   return read<Application[]>(KEYS.applications, []);
 }
 
-export async function saveApplication(candidate: CandidateApplication): Promise<Application> {
+export function saveApplication(candidate: CandidateApplication): Promise<Application> {
+  return withLock(() => saveApplicationImpl(candidate));
+}
+
+async function saveApplicationImpl(candidate: CandidateApplication): Promise<Application> {
   const now = new Date().toISOString();
   const application: Application = {
     id: crypto.randomUUID(),
@@ -50,7 +65,16 @@ export async function saveApplication(candidate: CandidateApplication): Promise<
   return application;
 }
 
-export async function updateApplication(
+export function updateApplication(
+  id: string,
+  changes: Partial<Application>,
+): Promise<Application> {
+  return withLock(() => updateApplicationImpl(id, changes));
+}
+
+// Unlocked internal used by both the locked export and saveResumeVersion
+// (which already holds the lock — calling the export would deadlock).
+async function updateApplicationImpl(
   id: string,
   changes: Partial<Application>,
 ): Promise<Application> {
@@ -69,7 +93,11 @@ export async function updateApplication(
   return updated;
 }
 
-export async function deleteApplication(id: string): Promise<void> {
+export function deleteApplication(id: string): Promise<void> {
+  return withLock(() => deleteApplicationImpl(id));
+}
+
+async function deleteApplicationImpl(id: string): Promise<void> {
   const applications = await listApplications();
   await write(
     KEYS.applications,
@@ -87,19 +115,21 @@ export async function listResumeVersions(applicationId: string): Promise<ResumeV
   return versions.filter((v) => v.application_id === applicationId);
 }
 
-export async function saveResumeVersion(
+export function saveResumeVersion(
   version: Omit<ResumeVersion, 'id' | 'created_at'>,
 ): Promise<ResumeVersion> {
-  const full: ResumeVersion = {
-    ...version,
-    id: crypto.randomUUID(),
-    created_at: new Date().toISOString(),
-  };
-  const versions = await read<ResumeVersion[]>(KEYS.resumeVersions, []);
-  versions.unshift(full);
-  await write(KEYS.resumeVersions, versions);
-  await updateApplication(full.application_id, { resume_version_id: full.id });
-  return full;
+  return withLock(async () => {
+    const full: ResumeVersion = {
+      ...version,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+    };
+    const versions = await read<ResumeVersion[]>(KEYS.resumeVersions, []);
+    versions.unshift(full);
+    await write(KEYS.resumeVersions, versions);
+    await updateApplicationImpl(full.application_id, { resume_version_id: full.id });
+    return full;
+  });
 }
 
 export async function getSettings(): Promise<Settings> {
@@ -107,6 +137,6 @@ export async function getSettings(): Promise<Settings> {
   return { ...DEFAULT_SETTINGS, ...stored };
 }
 
-export async function saveSettings(settings: Settings): Promise<void> {
-  await write(KEYS.settings, settings);
+export function saveSettings(settings: Settings): Promise<void> {
+  return withLock(() => write(KEYS.settings, settings));
 }

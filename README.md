@@ -83,6 +83,10 @@ npm run build       # vite (side panel + worker) + esbuild (content scripts)
 npm run test:e2e    # Playwright against local fixture pages (build first)
 ```
 
+If Playwright's own browser download is unavailable (sandboxed/CI images with
+a preinstalled Chromium), point the tests at it:
+`PW_CHROMIUM_PATH=/path/to/chromium npm run test:e2e`.
+
 The e2e tests load the built content scripts into fixture pages that mimic
 LinkedIn's Easy Apply modal and a Greenhouse-style confirmation page, with the
 `chrome.*` API stubbed — real sites require login, so fixtures verify the

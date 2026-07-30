@@ -66,10 +66,17 @@ export function renderDetail(
 
   const meta = document.createElement('p');
   meta.className = 'muted';
-  const link = application.posting_url
-    ? ` · <a href="${application.posting_url}" target="_blank" rel="noreferrer">posting</a>`
-    : '';
-  meta.innerHTML = `Applied ${application.date_applied.slice(0, 10)} · ${application.source}${link}`;
+  // Built with DOM APIs: posting_url comes from an arbitrary page's
+  // location.href and must never be interpolated into markup.
+  meta.append(`Applied ${application.date_applied.slice(0, 10)} · ${application.source}`);
+  if (application.posting_url) {
+    const anchor = document.createElement('a');
+    anchor.href = application.posting_url;
+    anchor.textContent = 'posting';
+    anchor.target = '_blank';
+    anchor.rel = 'noreferrer';
+    meta.append(' · ', anchor);
+  }
 
   const errorEl = document.createElement('div');
   errorEl.className = 'error';

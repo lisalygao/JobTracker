@@ -18,8 +18,7 @@
     "submittedTextPatterns": [
       "application sent",
       "application submitted",
-      "your application was sent",
-      "applied to"
+      "your application was sent"
     ],
     "jobDescription": [
       ".jobs-description__content",
